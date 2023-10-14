@@ -1,0 +1,8 @@
+{
+	"name": "Default Dark", // Name of the theme
+	"creator-name": "ROBLOX", // Name of the creator
+
+	"theme-type": "2", // 1 = Light, 2 = Dark, Any others = Dark
+
+	"source": "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/QtResources/Platform/Base/QtUI/themes/DarkTheme.json" // Source of the file
+}

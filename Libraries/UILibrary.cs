@@ -10,6 +10,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Studio_Theme_Manager.Libraries {
     public class UILibrary {
@@ -22,24 +24,105 @@ namespace Studio_Theme_Manager.Libraries {
         private ImageBrush checkboxSelectedBrush = new ImageBrush();
 
         public UILibrary(string checkboxSelectedURL = "pack://application:,,,/Images/check.png", string checkboxNotSelectedURL = "pack://application:,,,/Images/unchecked.png") {
+            ConsoleLibrary.WriteLine($"[UILIBRARY] UILibrary intialized");
+
             checkboxNotSelectedBrush.ImageSource = new BitmapImage(new Uri(checkboxNotSelectedURL));
             checkboxSelectedBrush.ImageSource = new BitmapImage(new Uri(checkboxSelectedURL));
         }
 
         // OTHERS \\
         public void RunOnUIThread(Delegate method) {
+            ConsoleLibrary.WriteLine($"[UILIBRARY] [THREAD SWITCH] Running a method on the UI Thread");
+
             caller.Dispatcher.BeginInvoke(method);
+        }
+
+        // HIERARCHY ASSISTS \\
+        public static T GetParent<T>(DependencyObject child) where T : DependencyObject {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            if (parentObject == null) return null;
+
+            T parent = parentObject as T;
+
+            if (parent != null) { return parent; }
+            else {
+                return GetParent<T>(parentObject);
+            }
+        }
+
+        public static T GetChildByName<T>(DependencyObject parent, string childName) where T : DependencyObject {
+            if (parent == null) return null;
+
+            T foundChild = null;
+
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childrenCount; i++) {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                T childType = child as T;
+
+                if (childType == null) {
+                    foundChild = GetChildByName<T>(child, childName);
+
+                    if (foundChild != null) break;
+                }
+                else if (!string.IsNullOrEmpty(childName)) {
+                    var frameworkElement = child as FrameworkElement;
+
+                    if (frameworkElement != null && frameworkElement.Name == childName) {
+                        foundChild = (T)child;
+                        break;
+                    }
+                }
+                else {
+                    foundChild = (T)child;
+                    break;
+                }
+            }
+            return foundChild;
+        }
+
+        //-- This code dont work 🤑🤑🤑🤑🤑🤑
+        public static T GetChildByType<T>(DependencyObject parent, Type type) where T : DependencyObject {
+            if (parent == null) return null;
+
+            T foundChild = null;
+
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childrenCount; i++) {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                T childType = child as T;
+
+                if (childType == null || !child.Equals(type)) {
+                    
+                    foundChild = GetChildByType<T>(child, type);
+
+                    if (foundChild != null) break;
+                }
+                else {
+                    foundChild = (T)child;
+                    break;
+                }
+            }
+
+            return foundChild;
         }
 
         // ANIMATIONS \\
         public Storyboard PlayAnimation(string animationName) {
-            Storyboard animation = caller.FindResource(animationName) as Storyboard;
+            Storyboard animation = (Storyboard)caller.TryFindResource(animationName);
 
             if (animation == null) {
                 GeneralLibrary.ShowError("ANIMATION \"" + animationName + "\" DOES NOT EXIST IN THE CALLED WINDOW", GeneralLibrary.ErrorLevel.MINOR, false);
             }
             else {
                 animation.Begin();
+
+                ConsoleLibrary.WriteLine($"[UILIBRARY] Starting animation \"{animationName}\"");
             }
 
             return animation;
@@ -77,6 +160,8 @@ namespace Studio_Theme_Manager.Libraries {
             var returned = GetDropdownInfo(dropdown);
 
             if (returned.array != null) {
+                RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Dropdown \"{dropdown.Name}\"'s value is {returned.array[2]}")));
+
                 return returned.array[2];
             }
 
@@ -84,6 +169,8 @@ namespace Studio_Theme_Manager.Libraries {
         }
 
         public void SetDropdownValue(Button dropdown, object[] values) {
+            RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Setting dropdown \"{dropdown.Name}\"'s value to [Display: {values[0]}, Actual: {values[1]}]")));
+
             var tuple = GetDropdownInfo(dropdown);
 
             if (tuple.index != -1) {
@@ -92,46 +179,54 @@ namespace Studio_Theme_Manager.Libraries {
             }
         }
 
-        public void CreateDropdown(Button dropdown, string icon, object[] items) {
-            var tuple = GetDropdownInfo(dropdown);
-
-            object[] goal = new object[] { };
+        public (bool success, object[] selected) SpawnDropdown(UIElement parent, string icon, object[] items) {
             bool canContinue = false;
             bool success = false;
+            object[] selected = items[1] as object[];
 
-            if (tuple.index != -1) {
-                RunOnUIThread(new Action(delegate {
-                    ContextMenu menu = new ContextMenu();
-                    menu.PlacementTarget = tuple.array[0] as UIElement;
+            RunOnUIThread(new Action(delegate {
+                ContextMenu menu = new ContextMenu();
+                menu.PlacementTarget = parent;
 
-                    foreach (object[] itemInfo in items) {
-                        void Selected() {
-                            goal = itemInfo;
-                            success = true;
-                            canContinue = true;
-                        }
-
-                        MenuItem menuItem = new MenuItem();
-                        menuItem.Click += delegate { Selected(); };
-                        menuItem.MouseDown += delegate { Selected(); };
-                        menuItem.Header = itemInfo[0];
-                        menuItem.Icon = new Image { Source = new BitmapImage(new Uri(icon)) };
-
-                        menu.Items.Add(menuItem);
+                foreach (object[] itemInfo in items) {
+                    void Selected() {
+                        selected = itemInfo;
+                        success = true;
+                        canContinue = true;
                     }
 
-                    menu.IsOpen = true;
-                    menu.Closed += delegate {
-                        canContinue = true;
-                    };
-                }));
+                    MenuItem menuItem = new MenuItem();
+                    menuItem.Click += delegate { Selected(); };
+                    menuItem.MouseDown += delegate { Selected(); };
+                    menuItem.Header = itemInfo[0];
+                    menuItem.Icon = new Image { Source = new BitmapImage(new Uri(icon)) };
 
+                    menu.Items.Add(menuItem);
+                }
+
+                menu.IsOpen = true;
+                menu.Closed += delegate {
+                    canContinue = true;
+                };
+            }));
+
+            while (canContinue == false) { Thread.Sleep(25); }
+
+            return (success: success, selected: selected);
+        }
+
+        public void CreateDropdown(Button dropdown, string icon, object[] items) {
+            RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Creating dropdown for \"{dropdown.Name}\" with a total of {items.Length} items")));
+
+            var tuple = GetDropdownInfo(dropdown);
+
+            if (tuple.index != -1) {
                 Task.Run(new Action(delegate {
-                    while (canContinue == false) { Thread.Sleep(25); }
+                    var returned = SpawnDropdown(dropdown, icon, items);
 
-                    if (success && tuple.index != -1) {
+                    if (returned.success && tuple.index != -1) {
                         RunOnUIThread(new Action(delegate {
-                            SetDropdownValue(dropdown, goal);
+                            SetDropdownValue(dropdown, returned.selected);
                         }));
                     }
                 }));
@@ -144,6 +239,8 @@ namespace Studio_Theme_Manager.Libraries {
             Button dropdown = dropdownObj as Button;
             Label assosciatedLabel = (Label)caller.FindName(dropdown.Name + "_text");
 
+            ConsoleLibrary.WriteLine($"[UILIBRARY] Initializing dropdown \"{dropdown.Name}\", default value [Display: {defaults[0]}, Actual: {defaults[1]}]");
+
             if (assosciatedLabel == null) {
                 GeneralLibrary.ShowError("FAILED TO INITIALISE DROPDOWN \"" + dropdown.Name + "\" AS IT DOES NOT HAVE AN ASSOSCIATED LABEL", GeneralLibrary.ErrorLevel.LOSS_OF_FUNCTIONALITY, false);
 
@@ -154,6 +251,8 @@ namespace Studio_Theme_Manager.Libraries {
 
             assosciatedLabel.Content = defaults[0];
 
+            ConsoleLibrary.WriteLine($"[UILIBRARY] Successfully initialized dropdown \"{dropdown.Name}\"");
+            
             return true;
         }
 
@@ -172,6 +271,8 @@ namespace Studio_Theme_Manager.Libraries {
             var returned = GetCheckboxArray(checkbox);
 
             if (returned.array != null) {
+                RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Checkbox \"{checkbox.Name}\"'s state is {returned.array[2]}")));
+
                 return (bool)returned.array[2];
             }
 
@@ -197,18 +298,23 @@ namespace Studio_Theme_Manager.Libraries {
                     }
                 }
 
-                if (toggling) {
-                    Format(!(bool)returned.array[2]);
+                bool boolean = !(bool)returned.array[2];
+
+                if (!toggling) {
+                    boolean = decided;
                 }
-                else {
-                    Format(decided);
-                }
+
+                Format(boolean);
+
+                RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Set checkbox \"{checkbox.Name}\" to {boolean}")));
             }
         }
 
         public bool InitializeCheckbox(object checkbox, bool initialValue = false) {
             Button button = (Button)checkbox;
             Rectangle assosciatedCheck = (Rectangle)caller.FindName(button.Name + "_image");
+
+            RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Initializing checkbox \"{button.Name}\", default value is {initialValue}")));
 
             if (assosciatedCheck == null) {
                 GeneralLibrary.ShowError("FAILED TO INITIALISE CHECKBOX \"" + button.Name + "\" AS IT DOES NOT HAVE AN ASSOSCIATED IMAGE", GeneralLibrary.ErrorLevel.LOSS_OF_FUNCTIONALITY, false);
@@ -218,6 +324,8 @@ namespace Studio_Theme_Manager.Libraries {
             checkboxes.Add(new object[] { button, assosciatedCheck, false });
 
             SetCheckboxState(button, false, initialValue);
+
+            RunOnUIThread(new Action(() => ConsoleLibrary.WriteLine($"[UILIBRARY] Initialized checkbox \"{button.Name}\"")));
 
             return true;
         }

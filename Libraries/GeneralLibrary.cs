@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Shapes;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Animation;
-using System.Threading;
+using System.Windows.Input;
 
-namespace Studio_Theme_Manager.Libraries {
+namespace Studio_Theme_Manager.Libraries
+{
     public class GeneralLibrary {
         public enum ErrorLevel {
             LOSS_OF_FUNCTIONALITY,
@@ -21,13 +16,60 @@ namespace Studio_Theme_Manager.Libraries {
             UNKNOWN
         }
 
-        public static string ConvertBasicPathToResources(string basicPath) {
+        public static Dictionary<string, Key[]> Keystrokes = new Dictionary<string, Key[]>() { };
+
+        public static void RegisterKeystroke(string name, Key[] keys) { Keystrokes.Add(name, keys); }
+
+        public static bool ProcessOpen(string name)
+        {
+            return Process.GetProcessesByName(name).Length > 0;
+        }
+
+        public static string GetVersion() {
+            return "v" + FileLibrary.GetSetting("version-number").ToString() + "-" + FileLibrary.GetSetting("version-stage").ToString();
+        }
+
+        public static string ResourcesPath(string basicPath) {
             return "pack://application:,,,/" + basicPath;
+        }
+
+        public static string KeystrokeToString(string keystrokeName) {
+            string finalized = "";
+
+            foreach (Key key in Keystrokes[keystrokeName]) {
+                finalized += key.ToString() + "+";
+            }
+
+            finalized = finalized.Remove(finalized.Length - 1, 1);
+
+            return finalized;
+        }
+
+        public static bool KeystrokeDown(string keystrokeName) {
+            foreach (Key key in Keystrokes[keystrokeName]) {
+                if (!Keyboard.IsKeyDown(key)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool AreKeysDown(Key[] keys) {
+            foreach (Key key in keys) {
+                if (!Keyboard.IsKeyDown(key)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static void ShowError(string content, ErrorLevel level, bool halt) {
             string message = content;
             string caption = "HALTED: " + halt.ToString() + " | UI ERROR: " + level;
+
+            ConsoleLibrary.WriteLine($"[ERROR] {message}\n{caption}");
 
             MessageBoxImage errorIcon = MessageBoxImage.Exclamation;
 

@@ -15,78 +15,91 @@
         ResizeMode="NoResize" 
         ClipToBounds="False"
         controls:WindowBlur.IsEnabled ="True" 
-        Background="#7F000000" Icon="/icon.ico"
+        Background="#7F000000" Icon="Images/icon.png"
     >
     <Window.Resources>
-        <Storyboard x:Key="WorkingFrameAppear">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="working_frame" Storyboard.TargetProperty="(UIElement.Visibility)">
+
+        <Style x:Key="NoHeader" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Visibility" Value="Collapsed" />
+        </Style>
+        <Storyboard x:Key="ProgressFrameAppear" SlipBehavior="Grow">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="progress_frame" Storyboard.TargetProperty="(UIElement.Visibility)">
                 <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
-            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="working_frame_canvas" Storyboard.TargetProperty="(FrameworkElement.Margin)">
-                <EasingThicknessKeyFrame KeyTime="00:00:00" Value="0,250,0,0"/>
-                <EasingThicknessKeyFrame KeyTime="00:00:00.4000000" Value="0,0,0,0">
-                    <EasingThicknessKeyFrame.EasingFunction>
-                        <CubicEase EasingMode="EaseOut"/>
-                    </EasingThicknessKeyFrame.EasingFunction>
-                </EasingThicknessKeyFrame>
-            </ThicknessAnimationUsingKeyFrames>
-            <ColorAnimationUsingKeyFrames Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
                 <EasingColorKeyFrame KeyTime="00:00:00" Value="#00000000"/>
-                <EasingColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F000000">
+                <EasingColorKeyFrame KeyTime="00:00:00.5000000" Value="#A5000000">
                     <EasingColorKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseOut"/>
                     </EasingColorKeyFrame.EasingFunction>
                 </EasingColorKeyFrame>
             </ColorAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Key="WorkingFrameDissapear">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="working_frame" Storyboard.TargetProperty="(UIElement.Visibility)">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="background" Storyboard.TargetProperty="(UIElement.Visibility)">
                 <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
-                <DiscreteObjectKeyFrame KeyTime="00:00:00.3000000" Value="{x:Static Visibility.Hidden}"/>
             </ObjectAnimationUsingKeyFrames>
-            <ColorAnimationUsingKeyFrames Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
-                <EasingColorKeyFrame KeyTime="00:00:00" Value="#7F000000"/>
-                <EasingColorKeyFrame KeyTime="00:00:00.3000000" Value="#00000000">
+            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="progress_frame_clipping" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                <EasingThicknessKeyFrame KeyTime="00:00:00" Value="0,400,0,0"/>
+                <EasingThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,0,0,0">
+                    <EasingThicknessKeyFrame.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </EasingThicknessKeyFrame.EasingFunction>
+                </EasingThicknessKeyFrame>
+            </ThicknessAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="ProgressFrameDissappear" SlipBehavior="Grow">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="progress_frame" Storyboard.TargetProperty="(UIElement.Visibility)">
+                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
+                <DiscreteObjectKeyFrame KeyTime="00:00:00.5000000" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#A5000000"/>
+                <EasingColorKeyFrame KeyTime="00:00:00.5000000" Value="#00000000">
                     <EasingColorKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseIn"/>
                     </EasingColorKeyFrame.EasingFunction>
                 </EasingColorKeyFrame>
             </ColorAnimationUsingKeyFrames>
-            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="working_frame_canvas" Storyboard.TargetProperty="(FrameworkElement.Margin)">
-                <EasingThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,0"/>
-                <EasingThicknessKeyFrame KeyTime="00:00:00.3000000" Value="0,250,0,0">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="background" Storyboard.TargetProperty="(UIElement.Visibility)">
+                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
+                <DiscreteObjectKeyFrame KeyTime="00:00:00.5000000" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="progress_frame_clipping" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                <SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,0"/>
+                <EasingThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,400,0,0">
                     <EasingThicknessKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseIn"/>
                     </EasingThicknessKeyFrame.EasingFunction>
                 </EasingThicknessKeyFrame>
             </ThicknessAnimationUsingKeyFrames>
         </Storyboard>
+        <Style x:Key="NoStyle" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}">
+                        <Grid/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
-        <Canvas x:Name="topbarContainer" HorizontalAlignment="Center" Height="35" VerticalAlignment="Top" Width="670" MouseLeftButtonDown="topbarContainer_MouseLeftButtonDown">
-            <Rectangle x:Name="Topbar" HorizontalAlignment="Center" Height="35" VerticalAlignment="Top" Width="670" Fill="#4C562F15">
+        <Canvas x:Name="topbar_container" HorizontalAlignment="Center" Height="35" VerticalAlignment="Top" Width="670" MouseLeftButtonDown="topbar_container_MouseLeftButtonDown">
+            <Rectangle HorizontalAlignment="Center" Height="35" VerticalAlignment="Top" Width="670" Fill="#4C562F15">
                 <Rectangle.BitmapEffect>
                     <DropShadowBitmapEffect Color="#FF060606" Direction="0"
                     ShadowDepth="0" Softness="10" />
                 </Rectangle.BitmapEffect>
             </Rectangle>
 
-            <Image x:Name="appIcon" HorizontalAlignment="Left" Height="29" VerticalAlignment="Top" Width="29" Margin="3,3,0,0" Source="Images/hd-icon.png">
-                <Image.BitmapEffect>
-                    <DropShadowBitmapEffect Color="Black" Direction="0"
-                    ShadowDepth="0" Softness="1" />
-                </Image.BitmapEffect>
-            </Image>
-
-            <Label x:Name="appTitle" Content="Studio Theme Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Width="240" FontSize="20" Height="28" VerticalContentAlignment="Center" FontWeight="Bold" Padding="0,0,0,0" Canvas.Left="37" Canvas.Top="4" FontFamily="Dubai Medium" Margin="2,-1,0,0" Foreground="#FFF9C300">
+            <Label Content="Studio Theme Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Width="240" FontSize="20" Height="28" VerticalContentAlignment="Center" FontWeight="Bold" Padding="0,0,0,0" Canvas.Left="37" Canvas.Top="4" FontFamily="Dubai Medium" Margin="2,-1,0,0" Foreground="#FFF9C300">
                 <Label.BitmapEffect>
                     <DropShadowBitmapEffect Color="Black" Direction="0"
                     ShadowDepth="0" Softness="1"/>
                 </Label.BitmapEffect>
             </Label>
 
-            <Button x:Name="closeButton" Content="X" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFF2A2A" Foreground="#FF5A0E0E" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="27" Width="38" FontWeight="Bold" FontSize="15" Canvas.Left="628.5" Canvas.Top="4" Click="closeButton_Click" Panel.ZIndex="2">
+            <Button x:Name="close_button" Content="X" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFF2A2A" Foreground="#FF5A0E0E" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="27" Width="38" FontWeight="Bold" FontSize="15" Canvas.Left="628.5" Canvas.Top="4" Click="close_button_Click" Panel.ZIndex="2">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -98,7 +111,8 @@
                     ShadowDepth="1.5" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
-            <Button x:Name="minimizeButton" Background="#FFFFAF00" Foreground="Black" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="38" FontWeight="Bold" FontSize="15" Canvas.Left="586" Canvas.Top="4" HorizontalAlignment="Center" VerticalAlignment="Center" Content="—" Click="minimizeButton_Click" Panel.ZIndex="3">
+            
+            <Button x:Name="minimize_button" Background="#FFFFAF00" Foreground="Black" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="38" FontWeight="Bold" FontSize="15" Canvas.Left="586" Canvas.Top="4" HorizontalAlignment="Center" VerticalAlignment="Center" Content="—" Click="minimize_button_Click" Panel.ZIndex="3">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -110,6 +124,19 @@
                         ShadowDepth="0" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
+            
+            <Button FocusVisualStyle="{x:Null}" x:Name="app_icon" Content="" Canvas.Left="3" Canvas.Top="3" HorizontalAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="10" Height="29" Width="29" Click="app_icon_Click" Cursor="Hand" BorderBrush="{x:Null}" Foreground="{x:Null}">
+                <Button.OpacityMask>
+                    <ImageBrush ImageSource="/Images/icon.png"/>
+                </Button.OpacityMask>
+                <Button.Background>
+                    <ImageBrush Stretch="UniformToFill" ImageSource="/Images/icon.png"/>
+                </Button.Background>
+                <Button.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="0"
+     ShadowDepth="0" Softness="1" />
+                </Button.BitmapEffect>
+            </Button>
         </Canvas>
         <Canvas x:Name="category_buttons" HorizontalAlignment="Center" Height="30" Margin="0,35,0,0" VerticalAlignment="Top" Width="670">
             <Rectangle HorizontalAlignment="Center" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="670" Fill="#FF232323">
@@ -118,6 +145,7 @@
                     ShadowDepth="-2" Softness="1"/>
                 </Rectangle.BitmapEffect>
             </Rectangle>
+            
             <Button x:Name="patcher_category_button" Content="Patcher" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="177" Foreground="#FF6D3A18" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" FontFamily="Dubai Medium" FontSize="18" Click="patcher_category_button_Click" Background="#FFFFAF00"/>
 
             <Rectangle Height="24" Margin="3,3,0,0" Width="25" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -160,27 +188,96 @@
             </Rectangle>
         </Canvas>
 
-        <Canvas x:Name="working_frame" Margin="0,65,0,17" Panel.ZIndex="10" Visibility="Hidden">
-            <Rectangle x:Name="rectangle" Height="295" Width="670" Fill="#00000000"/>
+        <Rectangle x:Name="background" Height="295" Width="670" Fill="#00000000" Margin="0,65,0,17" Panel.ZIndex="10" Visibility="Hidden"/>
 
-            <Canvas x:Name="working_frame_canvas" Margin="0,0,0,0">
-                <ProgressBar Height="36" Canvas.Left="190" Canvas.Top="170" Width="290" BorderBrush="{x:Null}" Value="50" IsIndeterminate="True" Background="#FFFCFCFB" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Center" UseLayoutRounding="False" Foreground="#FFFFAF00">
-                    <ProgressBar.BitmapEffect>
-                        <DropShadowBitmapEffect Color="#19FFD986" Direction="0" ShadowDepth="0" Softness="0.52" Noise="0"/>
-                    </ProgressBar.BitmapEffect>
-                </ProgressBar>
+        <Canvas x:Name="progress_frame" Margin="0,65,0,17" Panel.ZIndex="11">
+            <Canvas x:Name="progress_frame_clipping" Margin="0,0,0,0" Background="{x:Null}" Panel.ZIndex="1">
+                <Canvas x:Name="working_progress_frame" Height="153" Width="320" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="175" Canvas.Top="67" Background="#FF191919" Panel.ZIndex="1" Visibility="Hidden">
+                    <ProgressBar Height="25" Canvas.Left="15" Canvas.Top="113" Width="290" BorderBrush="#7FFFFFFF" Value="50" IsIndeterminate="True" Background="#7FFCFCFB" Panel.ZIndex="1" UseLayoutRounding="False" Foreground="#FFFFAF00" Padding="-1,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <ProgressBar.BitmapEffect>
+                            <DropShadowBitmapEffect Color="#19FFD986" Direction="0" ShadowDepth="0" Softness="0.52" Noise="0"/>
+                        </ProgressBar.BitmapEffect>
+                    </ProgressBar>
 
-                <Label x:Name="working_title" Content="[WORKING TYPE]" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="175" Canvas.Top="67" Foreground="#FF6D3A18" FontFamily="Dubai Medium" FontWeight="Bold" FontSize="24" Padding="0,0,0,5" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="34" Width="320" Background="#FFFFAF00" Panel.ZIndex="1">
-                    <Label.BitmapEffect>
-                        <DropShadowBitmapEffect Color="#FFC39619" Direction="0" ShadowDepth="0" Softness="1" Noise="0"/>
-                    </Label.BitmapEffect>
-                </Label>
+                    <TextBlock x:Name="working_progress" Text="[WORKING PROGRESS STATE]" Canvas.Top="48" Foreground="White" FontFamily="Dubai Medium" FontSize="20" Padding="5,5,5,5" ScrollViewer.CanContentScroll="True" Height="61" Width="290" UseLayoutRounding="False" TextAlignment="Center" TextWrapping="Wrap" LineHeight="26" LineStackingStrategy="BlockLineHeight" Canvas.Left="15" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock.BitmapEffect>
+                            <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="0" Softness="1" Noise="0"/>
+                        </TextBlock.BitmapEffect>
+                    </TextBlock>
+                    <Label x:Name="working_title" Content="[PROCESS NAME]" Foreground="#FF6D3A18" FontFamily="Dubai Medium" FontWeight="Bold" FontSize="24" Padding="0,0,0,5" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="34" Width="320" Background="#FFFFAF00" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Label.BitmapEffect>
+                            <DropShadowBitmapEffect Color="#FFC39619" Direction="0" ShadowDepth="0" Softness="1" Noise="0"/>
+                        </Label.BitmapEffect>
+                    </Label>
+                </Canvas>
+                <Canvas x:Name="save_frame" Height="201" Width="380" Canvas.Left="145" Canvas.Top="43" Background="#FF191919" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
+                    <Label x:Name="save_title" Content="[TYPE]" Foreground="#FF6D3A18" FontFamily="Dubai Medium" FontWeight="Bold" FontSize="24" Padding="0,0,0,5" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="37" Width="380" Background="#FFFFAF00" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <Label.BitmapEffect>
+                            <DropShadowBitmapEffect Color="#FFC39619" Direction="0" ShadowDepth="0" Softness="1" Noise="0"/>
+                        </Label.BitmapEffect>
+                    </Label>
+                    <Label x:Name="theme_type_dropdown_text" Foreground="#FF171717" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="165" FontWeight="Bold" FontSize="16" Canvas.Left="200" Canvas.Top="52" Content="Dark" Panel.ZIndex="8" FontFamily="Dubai Medium" Background="White" HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center">
+                        <Label.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Label.Resources>
+                    </Label>
+                    <Button x:Name="theme_type_dropdown" Foreground="Gray" BorderBrush="{x:Null}" Padding="0,2,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="28" FontWeight="Bold" FontSize="16" Canvas.Left="167" Canvas.Top="52" Panel.ZIndex="4" FontFamily="Dubai Medium" HorizontalContentAlignment="Center" Background="White" HorizontalAlignment="Left" VerticalAlignment="Center" Click="theme_type_dropdown_Click" Loaded="theme_type_dropdown_Loaded">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                        <Rectangle HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,2,2,4" Width="20" Height="20" Fill="#FF131313">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="/Images/expand.png"/>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </Button>
+                    <Label Content="Theme Type:" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="25" Width="147" FontWeight="Bold" FontSize="17" Canvas.Left="15" Canvas.Top="53.5" Panel.ZIndex="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontFamily="Dubai Medium" Background="#FFFFAF00" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Label.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Label.Resources>
+                    </Label>
+                    <TextBox x:Name="theme_name_box" Foreground="Black" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="350" FontWeight="Bold" FontSize="16" Canvas.Left="15" Canvas.Top="121" Panel.ZIndex="8" FontFamily="Dubai Medium" Background="White" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" CaretBrush="Black" Cursor="IBeam" Text="Name">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <Label Content="Favourite:" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="25" Width="147" FontWeight="Bold" FontSize="17" Canvas.Left="15" Canvas.Top="88" Panel.ZIndex="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontFamily="Dubai Medium" Background="#FFFCAD00" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Label.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Label.Resources>
+                    </Label>
+                    <Button x:Name="favourite_theme_checkbox" Foreground="#FFDD9505" BorderBrush="{x:Null}" Padding="0,2,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="28" FontWeight="Bold" FontSize="16" Canvas.Left="167" Canvas.Top="86.5" Click="CheckboxClick" Panel.ZIndex="2" FontFamily="Dubai Medium" HorizontalContentAlignment="Center" Background="#FFFFDF9E" Initialized="CheckboxInitialized" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
 
-                <TextBlock x:Name="working_progress" Text="[PROGRESS STATE]" Canvas.Left="175" Canvas.Top="101" Foreground="White" FontFamily="Dubai Medium" FontSize="20" Padding="5,5,5,5" ScrollViewer.CanContentScroll="True" Height="119" Width="320" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#FF232323" UseLayoutRounding="False" TextAlignment="Center" TextWrapping="Wrap" LineHeight="26" LineStackingStrategy="BlockLineHeight">
-                    <TextBlock.BitmapEffect>
-                        <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="0" Softness="1" Noise="0"/>
-                    </TextBlock.BitmapEffect>
-                </TextBlock>
+                        <Rectangle x:Name="favourite_theme_checkbox_image" Width="20" Height="20" Fill="#FF6D3A18" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,4,4,4">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="/Images/check.png"/>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+
+                    </Button>
+                    <Button x:Name="save_theme_button" Content="Save" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="350" FontWeight="Bold" FontSize="17" Canvas.Left="15" Canvas.Top="158" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="save_theme_button_Click">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Canvas>
             </Canvas>
         </Canvas>
 
@@ -381,7 +478,6 @@ ShadowDepth="0" Softness="200" />
                         <ImageBrush ImageSource="/Images/check.png"/>
                     </Rectangle.OpacityMask>
                 </Rectangle>
-
             </Button>
             <Ellipse Height="14" Canvas.Top="56" Width="13" Fill="#B2000000" Panel.ZIndex="2" HorizontalAlignment="Center" Canvas.Left="13" VerticalAlignment="Top"/>
             <Ellipse Height="14" Canvas.Top="15" Width="13" Fill="#B2FFFFFF" Panel.ZIndex="2" Canvas.Left="13" HorizontalAlignment="Center" VerticalAlignment="Top"/>
@@ -415,7 +511,7 @@ ShadowDepth="0" Softness="200" />
             </Button>
         </Canvas>
         <Canvas x:Name="themes_frame" Margin="0,65,0,17" Panel.ZIndex="1">
-            <Button x:Name="big_button" Content="Delete" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="48" Panel.ZIndex="2" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0">
+            <Button x:Name="delete_theme_button" Content="Delete" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="48" Panel.ZIndex="2" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" Click="delete_theme_button_Click">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -427,7 +523,7 @@ ShadowDepth="0" Softness="200" />
                         ShadowDepth="1.5" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
-            <Label x:Name="d1_text" Foreground="#FF171717" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="650" FontWeight="Bold" FontSize="16" Canvas.Left="10" Canvas.Top="8" Content="None" Panel.ZIndex="3" FontFamily="Dubai Medium" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Center" Background="White">
+            <Label x:Name="theme_database_name_text" Foreground="#FF171717" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="610" FontWeight="Bold" FontSize="16" Canvas.Left="10" Canvas.Top="8" Content="None" Panel.ZIndex="3" FontFamily="Dubai Medium" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Center" Background="White">
                 <Label.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -439,7 +535,7 @@ ShadowDepth="0" Softness="200" />
                         ShadowDepth="0" Softness="1"/>
                 </Label.BitmapEffect>
             </Label>
-            <Button x:Name="big_button_Copy" Content="Edit" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="90" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Button x:Name="edit_theme_button" Content="Edit" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="90" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="edit_theme_button_Click">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -451,7 +547,22 @@ ShadowDepth="0" Softness="200" />
                         ShadowDepth="1.5" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
-            <Button x:Name="big_button_Copy1" Content="Upload" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="133" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Button x:Name="upload_theme_button" Content="Upload (N/A)" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="257" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="upload_theme_button_Click">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+                <Button.OpacityMask>
+                    <ImageBrush ImageSource="/Images/unavaliable-opacity-mask.png"/>
+                </Button.OpacityMask>
+
+                <Button.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="0"
+                        ShadowDepth="1.5" Softness="1"/>
+                </Button.BitmapEffect>
+            </Button>
+            <Button x:Name="import_theme_button" Content="Import from file" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="133.5" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="import_theme_button_Click">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -463,7 +574,7 @@ ShadowDepth="0" Softness="200" />
                         ShadowDepth="1.5" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
-            <Button x:Name="big_button_Copy2" Content="Import from file" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="175" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Button x:Name="favourite_theme_button" Content="Fav / Unfav" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="175.5" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="favourite_theme_button_Click">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -475,43 +586,212 @@ ShadowDepth="0" Softness="200" />
                         ShadowDepth="1.5" Softness="1"/>
                 </Button.BitmapEffect>
             </Button>
-            <Button x:Name="big_button_Copy3" Content="Replace" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="215" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Button.Resources>
-                    <Style TargetType="{x:Type Border}">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </Button.Resources>
-
-                <Button.BitmapEffect>
-                    <DropShadowBitmapEffect Color="Black" Direction="0"
-                        ShadowDepth="1.5" Softness="1"/>
-                </Button.BitmapEffect>
-            </Button>
-            <Button x:Name="big_button_Copy4" Content="Fav / Unfav" Foreground="#FF6D3A18" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="170" FontWeight="Bold" FontSize="17" Canvas.Left="10" Canvas.Top="257" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFFCC5D" Click="run_patch_button_Click" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Button.Resources>
-                    <Style TargetType="{x:Type Border}">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </Button.Resources>
-
-                <Button.BitmapEffect>
-                    <DropShadowBitmapEffect Color="Black" Direction="0"
-                        ShadowDepth="1.5" Softness="1"/>
-                </Button.BitmapEffect>
-            </Button>
-            <ScrollViewer Height="237" Width="465" Canvas.Left="195" Canvas.Top="48" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1">
-                <ScrollViewer.Resources>
-                    <Style TargetType="{x:Type Border}">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </ScrollViewer.Resources>
-            </ScrollViewer>
-            <Rectangle Height="237" Canvas.Left="195" Canvas.Top="48" Width="465" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Top" StrokeThickness="0" RadiusX="5" RadiusY="5">
+            <Rectangle Height="237" Canvas.Left="195" Canvas.Top="48" Width="465" Fill="#7FF6A900" HorizontalAlignment="Center" VerticalAlignment="Top" StrokeThickness="0" RadiusX="5" RadiusY="5">
                 <Rectangle.BitmapEffect>
                     <DropShadowBitmapEffect Color="Black" Direction="0"
         ShadowDepth="1.5" Softness="1"/>
                 </Rectangle.BitmapEffect>
             </Rectangle>
+            <ListView x:Name="dark_themes_list_view" Height="90" Width="465" Canvas.Left="195" Canvas.Top="76" HorizontalAlignment="Center" VerticalAlignment="Top" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" Background="{x:Null}" Foreground="#FF27231C"    VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ListViewItemsCollections}">
+                <ListView.Resources>
+                    <Style x:Key="FocusVisual">
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Rectangle SnapsToDevicePixels="true" Stroke="#7F000000" StrokeThickness="1" StrokeDashArray="1 2" Fill="#CCFFCA6B"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#66FFDC91"/>
+                    <SolidColorBrush x:Key="Item.MouseOver.Border" Color="#FF9E7318"/>
+                    <SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="#66B9944B"/>
+                    <SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#FF7D5E20"/>
+                    <SolidColorBrush x:Key="Item.SelectedActive.Background" Color="#4C504435"/>
+                    <SolidColorBrush x:Key="Item.SelectedActive.Border" Color="#FF504435"/>
+
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="Padding" Value="0,0"/>
+                        <Setter Property="Margin" Value="0,0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="Background" Value="#4CFFDD9D"/>
+                        <Setter Property="BorderBrush" Value="#FFFFC249"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="30"/>
+                        <Setter Property="Width" Value="465"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                        <StackPanel Orientation="Horizontal" ClipToBounds="False" Height="30" x:Name="Panel" VerticalAlignment="Center">
+
+                                            <Image x:Name="image" Width="25" Height="25" Source="{Binding ImageSource}" Stretch="UniformToFill" />
+                                            <Label x:Name="display" Content="{Binding LabelContent}" Width="350" Height="35" Visibility="Visible" FontFamily="Dubai Medium" FontSize="16" FontWeight="Bold" Foreground="#FFFFE5B5" HorizontalAlignment="Left" VerticalAlignment="Center" Panel.ZIndex="5" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Grid.IsSharedSizeScope="True"  />
+                                        </StackPanel>
+
+                                        <Border.BitmapEffect>
+                                            <DropShadowBitmapEffect Color="Black" Direction="0"
+        ShadowDepth="1.5" Softness="1"/>
+                                        </Border.BitmapEffect>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.MouseOver.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.MouseOver.Border}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.Resources>
+
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False"  ColumnHeaderContainerStyle="{StaticResource NoHeader}">
+                        <GridViewColumn x:Name="dark_grid_view_content" Header=""  Width="400"></GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <Button x:Name="refresh_themes_button" Content="⟳" Foreground="#FF6C3E20" BorderBrush="{x:Null}" Padding="0,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="30" FontSize="18" Canvas.Left="630" Canvas.Top="8" Panel.ZIndex="2" FontFamily="Dubai Medium" VerticalContentAlignment="Center" Background="#FFFBAC00" BorderThickness="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="refresh_themes_button_Click">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+
+                <Button.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="0"
+                        ShadowDepth="1.5" Softness="1"/>
+                </Button.BitmapEffect>
+            </Button>
+            <Label Foreground="#FF422D00" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="465" FontWeight="Bold" FontSize="16" Canvas.Left="195" Canvas.Top="166.5" Content="Light" Panel.ZIndex="3" FontFamily="Dubai Medium" HorizontalContentAlignment="Left" Background="#FFFFF4DC" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <Label.BitmapEffect>
+                    <DropShadowBitmapEffect Color="#FF4A4A4A" Direction="0"
+                        ShadowDepth="0" Softness="1"/>
+                </Label.BitmapEffect>
+            </Label>
+            <ListView x:Name="light_themes_list_view" Height="90" Width="465" Canvas.Left="195" Canvas.Top="195" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ListViewItemsCollections}" Background="{x:Null}" Foreground="#FFFFE7BD">
+                <ListView.Resources>
+                    <Style x:Key="FocusVisual">
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Rectangle SnapsToDevicePixels="true" Stroke="#7F000000" StrokeThickness="1" StrokeDashArray="1 2" Fill="#CCFFCA6B"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#66FFDC91"/>
+                    <SolidColorBrush x:Key="Item.MouseOver.Border" Color="#FF9E7318"/>
+                    <SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="#66B9944B"/>
+                    <SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#FF7D5E20"/>
+                    <SolidColorBrush x:Key="Item.SelectedActive.Background" Color="#4C504435"/>
+                    <SolidColorBrush x:Key="Item.SelectedActive.Border" Color="#FF504435"/>
+
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="Padding" Value="0,0"/>
+                        <Setter Property="Margin" Value="0,0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="Background" Value="#4CFFDD9D"/>
+                        <Setter Property="BorderBrush" Value="#FFFFC249"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="30"/>
+                        <Setter Property="Width" Value="465"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                        <StackPanel Orientation="Horizontal" ClipToBounds="False" Height="30" x:Name="Panel" VerticalAlignment="Center">
+
+                                            <Image x:Name="image" Width="25" Height="25" Source="{Binding ImageSource}" Stretch="UniformToFill" />
+                                            <Label x:Name="display" Content="{Binding LabelContent}" Width="350" Height="35" Visibility="Visible" FontFamily="Dubai Medium" FontSize="16" FontWeight="Bold" Foreground="#FFFFE5B5" HorizontalAlignment="Left" VerticalAlignment="Center" Panel.ZIndex="5" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Grid.IsSharedSizeScope="True"  />
+                                        </StackPanel>
+
+                                        <Border.BitmapEffect>
+                                            <DropShadowBitmapEffect Color="Black" Direction="0"
+ShadowDepth="1.5" Softness="1"/>
+                                        </Border.BitmapEffect>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.MouseOver.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.MouseOver.Border}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.Resources>
+
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False"  ColumnHeaderContainerStyle="{StaticResource NoHeader}">
+                        <GridViewColumn x:Name="light_grid_view_content" Header=""  Width="400"></GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <Canvas Panel.ZIndex="10" Height="28" Width="465" Canvas.Left="195" Canvas.Top="48" ClipToBounds="True">
+                <Label Foreground="#FFFFF5DE" BorderBrush="{x:Null}" Padding="5,0,0,0" Grid.IsSharedSizeScope="True" Height="28" Width="465" FontWeight="Bold" FontSize="16" Content="Dark" Panel.ZIndex="5" FontFamily="Dubai Medium" HorizontalContentAlignment="Left" Background="{x:Null}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Rectangle Grid.IsSharedSizeScope="True" Height="44" Width="465" Panel.ZIndex="3" Fill="#FF231C0C" HorizontalAlignment="Left" VerticalAlignment="Top" StrokeThickness="0" RadiusX="5" RadiusY="5">
+
+                    <Rectangle.BitmapEffect>
+                        <DropShadowBitmapEffect Color="#FF4A4A4A" Direction="0"
+ShadowDepth="0" Softness="1"/>
+                    </Rectangle.BitmapEffect>
+                </Rectangle>
+            </Canvas>
         </Canvas>
         <Canvas x:Name="editor_frame" Margin="0,65,0,17" Panel.ZIndex="1" Visibility="Hidden">
         </Canvas>
@@ -525,7 +805,7 @@ ShadowDepth="0" Softness="200" />
             </Canvas.BitmapEffect>
 
             <Label Content="Studio Theme Manager, created by Ossyence! You can find me everywhere using @ossyence or Ossyence" HorizontalAlignment="Left" Margin="2,0,0,0" VerticalAlignment="Top" Background="{x:Null}" Height="17" Padding="0,0,0,0" Width="523" FontFamily="Dubai Medium" FontWeight="Bold" Foreground="#7FFCAD00"/>
-            <Label Content="vNULL" HorizontalAlignment="Left" Margin="580,0,0,0" VerticalAlignment="Top" Background="{x:Null}" Height="17" Padding="0,0,0,0" Width="88" FontFamily="Dubai Medium" FontWeight="Bold" HorizontalContentAlignment="Right" Foreground="#CCF5D021"/>
+            <Label x:Name="app_version" Content="vNULL" HorizontalAlignment="Left" Margin="580,0,0,0" VerticalAlignment="Top" Background="{x:Null}" Height="17" Padding="0,0,0,0" Width="88" FontFamily="Dubai Medium" FontWeight="Bold" HorizontalContentAlignment="Right" Foreground="#CCF5D021"/>
         </Canvas>
     </Grid>
 </Window>

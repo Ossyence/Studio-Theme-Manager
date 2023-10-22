@@ -1,0 +1,83 @@
+﻿<Window x:Class="Studio_Theme_Manager.Console"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Studio_Theme_Manager.CustomControls"
+        controls:WindowBlur.IsEnabled="True"
+        AllowsTransparency="True"
+    Title="Studio Theme Manager (DEV CONSOLE)" Height="350" Width="605" Icon="/Images/monochromed-icon.png" Foreground="White" WindowStyle="None" Background="#7F000000">
+    <Grid x:Name="grid" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+
+        <Canvas x:Name="topbarContainer" Height="35" VerticalAlignment="Top" MouseLeftButtonDown="topbarContainer_MouseLeftButtonDown" Grid.Column="0" Background="#99383838">
+            <Canvas.BitmapEffect>
+                <DropShadowBitmapEffect Color="#FF060606" Direction="0" ShadowDepth="0" Softness="10" />
+            </Canvas.BitmapEffect>
+
+            <Image x:Name="appIcon" HorizontalAlignment="Left" Height="29" VerticalAlignment="Top" Width="29" Source="/Images/monochromed-icon.png" Canvas.Left="3" Canvas.Top="3">
+                <Image.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="0" Softness="1" />
+                </Image.BitmapEffect>
+            </Image>
+
+            <Label x:Name="appTitle" Content="Studio Theme Manager (DEV CONSOLE)" HorizontalAlignment="Left" VerticalAlignment="Center" Width="341" FontSize="18" Height="28" VerticalContentAlignment="Center" FontWeight="Bold" Padding="0,0,0,0" Canvas.Left="39" Canvas.Top="3" FontFamily="Dubai Medium" Foreground="#FFBBBBBB" Background="{x:Null}">
+                <Label.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="0" Softness="1"/>
+                </Label.BitmapEffect>
+            </Label>
+
+            <Grid Width="{Binding ActualWidth, ElementName=topbarContainer, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=topbarContainer, Mode=OneWay}">
+
+                <Button x:Name="close_button" Content="X" Background="#FFFF4242" Foreground="#FF5A0E0E" BorderBrush="{x:Null}" Width="38" FontWeight="Bold" FontSize="15" Panel.ZIndex="2" BorderThickness="1,1,1,1" RenderTransformOrigin="1,0.5" HorizontalContentAlignment="Center" HorizontalAlignment="Right" Margin="0,4,4,4">
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+
+                    <Button.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="1.5" Softness="1"/>
+                    </Button.BitmapEffect>
+                </Button>
+                <Button x:Name="minimize_button" Content="—" Background="#FFAAAAAA" Foreground="#FF3D3D3D" BorderBrush="{x:Null}" Width="38" FontWeight="Bold" FontSize="15" Panel.ZIndex="2" BorderThickness="1,1,1,1" RenderTransformOrigin="1,0.5" HorizontalContentAlignment="Center" HorizontalAlignment="Right" Margin="0,4,46,4" Click="minimize_button_Click">
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+
+                    <Button.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="0" ShadowDepth="1.5" Softness="1"/>
+                    </Button.BitmapEffect>
+                </Button>
+            </Grid>
+        </Canvas>
+
+        <ScrollViewer Name="Scroller" Margin="0,34,0,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Foreground="{x:Null}" Padding="5,5,5,3">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding ConsoleOutput, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Background="Transparent"
+                             BorderThickness="0"
+                             Text="{Binding Path=.}" Foreground="White" FontFamily="Cascadia Code SemiBold" FontSize="13" FontWeight="Bold"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"></TextBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBox Text="{Binding ConsoleInput, Mode=TwoWay}" Background="{x:Null}" Foreground="#FFC3F0FF" FontFamily="Cascadia Mono SemiBold" Name="InputBlock" BorderBrush="{x:Null}" SelectionBrush="{x:Null}" FontSize="13" FontWeight="Bold" CaretBrush="White" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <Thumb x:Name="resizer" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="15" Width="15" Foreground="{x:Null}" Opacity="1" DragDelta="resizer_DragDelta" RenderTransformOrigin="1,1" Panel.ZIndex="8" OpacityMask="Transparent" Background="{x:Null}" Cursor="SizeNWSE">
+            <Thumb.Effect>
+                <DropShadowEffect/>
+            </Thumb.Effect>
+        </Thumb>
+
+        <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" RenderTransformOrigin="1,1" Height="17" Width="17" Panel.ZIndex="7"/>
+    </Grid>
+</Window>

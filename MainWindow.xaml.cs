@@ -1,56 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Numerics;
-using System.Windows.Threading;
-using Studio_Theme_Manager.Libraries;
 using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Windows.Media.Animation;
-using System.Windows.Controls.Primitives;
-using System.Runtime.InteropServices;
-using Newtonsoft.Json;
+using System.Collections.ObjectModel;
+using Microsoft.Win32;
+
 using Newtonsoft.Json.Linq;
+using Studio_Theme_Manager.Libraries;
 using System.Xml.Linq;
 
-namespace Studio_Theme_Manager {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
+namespace Studio_Theme_Manager { 
+    // TODO: MAKE THEME DROPDOWNS IN PATCHER CATEGORY NOT REQUIRE THE ROBLOX DEFAULT THEMES TO EXIST AND INSTEAD RELY ON WHAT THE USER INSTALLED
+    // TODO: MAKE PATCHING SYSTEM RECOGNISE THAT THERE CAN BE NO THEME IN THAT OVERRIDE SLOT SO IT DOWNLOADS THE DEFAULT VERSION
+
     /// </summary>
+    /// This program is kinda poorly made dont expect amazing programming and good optimisation                                                  
+    /// I also stopped developing this for a whole week and completely forgot how to work on the code 🤑🤑🤑
+    /// This uses the patching code from rbxrootx's command prompt based patcher go show it some love! (https://github.com/rbxrootx/Roblox-Studio-CustomTheme-Patcher)
+    public class ListViewItemsData {
+        public string ImageSource { get; set; }
+        public string LabelContent { get; set; }
+
+        public string ID { get; set; }
+    }
+
     public partial class MainWindow : Window {
+        private ObservableCollection<ListViewItemsData> DarkListViewItemsCollections { get { return _DarkListViewItemsCollections; } }
+        private ObservableCollection<ListViewItemsData> LightListViewItemsCollections { get { return _LightListViewItemsCollections; } }
+
+        private ObservableCollection<ListViewItemsData> _DarkListViewItemsCollections = new ObservableCollection<ListViewItemsData>();
+        private ObservableCollection<ListViewItemsData> _LightListViewItemsCollections = new ObservableCollection<ListViewItemsData>();
+
         public enum ThemeType {
             Light = 1,
             Dark = 2,
             UNKNOWN = 100000000
         }
 
-        public UILibrary LibraryInstance = new UILibrary();
-        public Array[] categoryData = new Array[] { };
+        public UILibrary UILibraryInstance = new UILibrary();
+        private Array[] categoryData = new Array[] { };
+        private Canvas[] storedPopups = new Canvas[] { };
 
-        public ImageBrush unavaliableBrush = new ImageBrush();
+        private ImageBrush unavaliableBrush = new ImageBrush();
 
-        private string automaticId = "gaminggamerstonisautomaticthisisuneccessarilylonghehe:money_mouth::slots:";
+        public string automaticId = "gaminggamerstonisautomaticthisisuneccessarilylonghehe:money_mouth::slots:";
 
         public string myPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
-        public string componentsPath = Path.Combine(Environment.CurrentDirectory, "ApplicationData");
-        public string themesPath = Path.Combine(Environment.CurrentDirectory, "InstalledThemes");
+        public string componentsPath = Path.Combine(Environment.CurrentDirectory, "Data");
+        public string themesPath = Path.Combine(Environment.CurrentDirectory, "Themes");
 
-        public string dataPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, "ApplicationData"), "Data.json");
-
-        public JObject themeStructure = JObject.Parse(File.ReadAllText(Path.Combine(Path.Combine(Environment.CurrentDirectory, "ApplicationData"), "Structure.json")));
-        public JObject themeInfoStructure = JObject.Parse(File.ReadAllText(Path.Combine(Path.Combine(Environment.CurrentDirectory, "ApplicationData"), "StructureCounterpart.json")));
+        public JObject themeStructure = JObject.Parse(File.ReadAllText(Path.Combine(Path.Combine(Environment.CurrentDirectory, "Data"), "Structure.json")));
 
         public string versionsFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox", "Versions");
 
@@ -59,6 +68,17 @@ namespace Studio_Theme_Manager {
         public string patchedExecutableName = "RobloxStudioPatched.exe";
         public string studioExecutableName = "RobloxStudioBeta.exe";
 
+        public string patchedProcessName = "RobloxStudioPatched";
+        public string studioProcessName = "RobloxStudioBeta";
+
+        private string importingFile = "";
+
+        // Idk what to call these
+        public bool StudioOpen() {
+            return GeneralLibrary.ProcessOpen(studioProcessName) || GeneralLibrary.ProcessOpen(patchedProcessName);
+        }
+
+        // Theme functions
         public (string displayName, string jsonPath, string infoPath, string directoryPath, ThemeType themeType, bool favourited, JObject jsonParsed, JObject infoParsed) GetThemeData(string name) {
             string[] directories = Directory.GetDirectories(themesPath);
 
@@ -76,7 +96,7 @@ namespace Studio_Theme_Manager {
                     string displayName = (string)infoParsed["name"];
                     ThemeType themeType = (ThemeType)(int)infoParsed["theme-type"];
 
-                    foreach (JToken favourite in JObject.Parse(File.ReadAllText(dataPath))["favourited"]) {
+                    foreach (JToken favourite in FileLibrary.GetSetting("favourited")) {
                         if (favourite.ToString() == directoryPath) {
                             isFavourite = true;
                             break;
@@ -126,7 +146,7 @@ namespace Studio_Theme_Manager {
                 DirectoryInfo info = new DirectoryInfo(directoryPath);
 
                 var data = GetThemeData(info.Name);
-                object[] objectified = new object[] { data.displayName, data.jsonPath, data.infoPath, data.directoryPath, data.themeType, data.favourited, data.jsonParsed, data.infoParsed };
+                object[] objectified = new object[] { data.displayName, data.jsonPath, data.infoPath, data.directoryPath, data.themeType, data.favourited, data.jsonParsed, data.infoParsed, info.Name };
 
                 if (keep != ThemeType.UNKNOWN) {
                     if (data.themeType == keep) {
@@ -160,43 +180,54 @@ namespace Studio_Theme_Manager {
             return themes.ToArray();
         }
 
-        public void CreateShortcut(string name, string createAt, string executableDirectory, string executableName, string iconPath) {
-            Type t = Type.GetTypeFromCLSID(new Guid("72C24DD5-D70A-438B-8A42-98424B88AFB8")); //Windows Script Host Shell Object
-            dynamic shell = Activator.CreateInstance(t);
+        public void RefreshThemeList()
+        {
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Theme list refreshing...");
 
-            try {
-                var lnk = shell.CreateShortcut(Path.Combine(createAt, name + ".lnk"));
-                try {
-                    lnk.TargetPath = Path.Combine(executableDirectory, executableName);
-                    lnk.IconLocation = iconPath;
-                    lnk.WorkingDirectory = executableDirectory;
-                    lnk.Save();
+            DarkListViewItemsCollections.Clear();
+            LightListViewItemsCollections.Clear();
+
+            dark_themes_list_view.ItemsSource = DarkListViewItemsCollections;
+            light_themes_list_view.ItemsSource = LightListViewItemsCollections;
+
+            object[] darkJSONs = GetEveryThemeJSONData(true, ThemeType.Dark);
+            object[] lightJSONs = GetEveryThemeJSONData(true, ThemeType.Light);
+
+            void Append(ListView box, object[] info, ObservableCollection<ListViewItemsData> data)
+            {
+                ConsoleLibrary.WriteLine($"[MAIN WINDOW] Adding theme \"{info[0]}\" to theme list");
+
+                string imagePath = "";
+
+                if ((bool)info[5])
+                {
+                    ConsoleLibrary.WriteLine($"[MAIN WINDOW] Theme \"{info[0]}\" is favourited");
+
+                    imagePath = GeneralLibrary.ResourcesPath("Images/favourite.png");
                 }
-                finally {
-                    Marshal.FinalReleaseComObject(lnk);
-                }
+
+                data.Add(new ListViewItemsData()
+                {
+                    ImageSource = imagePath,
+                    LabelContent = (string)info[0],
+                    ID = (string)info[8]
+                });
+
+                box.ItemsSource = data;
             }
-            finally {
-                Marshal.FinalReleaseComObject(shell);
+
+            foreach (object[] darkInfo in darkJSONs)
+            {
+                Append(dark_themes_list_view, darkInfo, DarkListViewItemsCollections);
+            }
+
+            foreach (object[] lightInfo in lightJSONs)
+            {
+                Append(light_themes_list_view, lightInfo, LightListViewItemsCollections);
             }
         }
 
-        public void DeleteDirectory(string path) {
-            if (!Directory.Exists(path)) { return; }
-
-            System.IO.DirectoryInfo directory = new System.IO.DirectoryInfo(path);
-
-            foreach (System.IO.FileInfo file in directory.GetFiles()) {
-                file.Delete();
-            }
-
-            foreach (System.IO.DirectoryInfo subDirectory in directory.GetDirectories()) {
-                subDirectory.Delete(true);
-            }
-
-            directory.Delete();
-        }
-
+        // UI functions
         public void SwitchCategory(Canvas canvas) {
             foreach (object[] categoryData in categoryData) {
                 Canvas assosciatedCanvas = (Canvas)categoryData[0];
@@ -210,34 +241,222 @@ namespace Studio_Theme_Manager {
                     assosciatedButton.OpacityMask = unavaliableBrush;
                 }
             }
+
+            FileLibrary.SetSetting("last-open-window", canvas.Name);
         }
 
         public void SetWorkingText(string caption, string content) {
-            LibraryInstance.RunOnUIThread(new Action(delegate {
+            UILibraryInstance.RunOnUIThread(new Action(delegate {
+                ConsoleLibrary.WriteLine($"[CUSTOM PROCESS] {caption} | {content}");
+
                 working_title.Content = caption;
                 working_progress.Text = content;
             }));
         }
 
-        public void BeginWorking(string caption, string content) {
-            LibraryInstance.RunOnUIThread(new Action(delegate {
-                SetWorkingText(caption, content);
+        public void StartProgress(Canvas frame) {
+            UILibraryInstance.RunOnUIThread(new Action(delegate { 
+                UILibraryInstance.PlayAnimation("ProgressFrameAppear");
 
-                LibraryInstance.PlayAnimation("WorkingFrameAppear");
+                foreach (Canvas canvas in storedPopups) {
+                    if (canvas != frame) {
+                        canvas.Visibility = Visibility.Hidden;
+                    } else {
+                        canvas.Visibility = Visibility.Visible;
+                    }
+                }
             }));
         }
 
-        public void StopWorking() {
-            LibraryInstance.RunOnUIThread(new Action(delegate {
-                LibraryInstance.PlayAnimation("WorkingFrameDissapear");
+        public void StopProgress() {
+            UILibraryInstance.RunOnUIThread(new Action(delegate { 
+                Storyboard animation = UILibraryInstance.PlayAnimation("ProgressFrameDissappear");
+                
+                Task.Run(new Action(delegate {
+                    Thread.Sleep(500);
+
+                    UILibraryInstance.RunOnUIThread(new Action(delegate {
+                        foreach (Canvas canvas in storedPopups) {
+                            canvas.Visibility = Visibility.Hidden;
+                        }
+                    }));
+                }));
             }));
         }
 
+        // Favouriting functions
+        public bool DeleteFavourite(string path) {
+            JArray favourites = (JArray)FileLibrary.GetSetting("favourited");
+
+            foreach (JToken favourite in favourites) {
+                if (favourite.ToString() == path) {
+                    ConsoleLibrary.WriteLine($"[MAIN WINDOW] Removing theme \"{path}\" from favourites list");
+
+                    favourites.Remove(favourite);
+
+                    FileLibrary.SetSetting("favourited", favourites);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void AddFavourite(string path) {
+            DeleteFavourite(path);
+            
+            JArray favourites = (JArray)FileLibrary.GetSetting("favourited");
+            
+            favourites.Add(path);
+
+            FileLibrary.SetSetting("favourited", favourites);
+        }
+
+        // THE MAIN THING 🤤🤤🤤
+        public void PatchStudio(string studioInstancePath, string lightOverridePath, string darkOverridePath, bool open = false, bool createShortcut = false) {
+            StartProgress(working_progress_frame);
+
+            SetWorkingText("INTIALIZING", "Finding theme JSONs and studio location...");
+
+            string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string shortcutPath = Path.Combine(desktopDirectory, shortcutName);
+
+            string[] versionsDirectory = Directory.GetDirectories(versionsFolderPath);
+            
+            if (studioInstancePath == automaticId)
+            {
+                studioInstancePath = versionsDirectory.FirstOrDefault(dir => File.Exists(Path.Combine(dir, studioExecutableName)));
+            }
+
+            string platformPath = Path.Combine(studioInstancePath, "Platform");
+            string fullPlatformPath = Path.Combine(studioInstancePath, "Platform", "Base", "QtUI", "themes");
+
+            string patchedPath = Path.Combine(studioInstancePath, patchedExecutableName);
+
+            Task.Run(new Action(delegate {
+                Thread.Sleep(1000);
+
+                if (StudioOpen())
+                {
+                    SetWorkingText("ATTENTION", "Please close every instance of ROBLOX Studio...");
+
+                    while (StudioOpen()) { Thread.Sleep(100); }
+                }
+
+                SetWorkingText("CLEARING", "Deleting old \"Platforms\" data and patched executable...");
+
+                FileLibrary.DeleteDirectory(platformPath);
+
+                if (File.Exists(patchedPath))
+                {
+                    File.Delete(patchedPath);
+                }
+
+                Thread.Sleep(500);
+
+                SetWorkingText("ADDING DATA", "Creating \"Platforms\" directory inside studio...");
+
+                Directory.CreateDirectory(fullPlatformPath);
+
+                Thread.Sleep(500);
+
+                SetWorkingText("ADDING DATA", "Copying JSONs into the \"Platforms\" directory...");
+
+                void CopyJSONOver(string jsonPath, string overwriteName)
+                {
+                    File.WriteAllText(Path.Combine(fullPlatformPath, overwriteName + ".json"), File.ReadAllText(jsonPath));
+                }
+
+                CopyJSONOver(darkOverridePath, "DarkTheme");
+                CopyJSONOver(lightOverridePath, "LightTheme");
+
+                Thread.Sleep(500);
+
+                SetWorkingText("PATCHING", "Running patch on studio...");
+
+                // This extract of code is from rbxrootx's command prompt based patcher (https://github.com/rbxrootx/Roblox-Studio-CustomTheme-Patcher)
+                // The program would not be possible without their patching code!
+
+                // EXTRACT
+                byte[] patchedBytes = File.ReadAllBytes(Path.Combine(studioInstancePath, studioExecutableName));
+
+                for (int i = 0; i <= patchedBytes.Length - 1; i++)
+                {
+                    if (patchedBytes[i] == 0x3A)
+                    {
+                        if (patchedBytes[i + 1] == 0x2F)
+                        {
+                            if (patchedBytes[i + 2] == 0x50)
+                            {
+                                if (patchedBytes[i + 3] == 0x6C)
+                                {
+                                    patchedBytes[i] = 0x2E;
+                                    patchedBytes[i + 1] = 0x2F;
+                                    patchedBytes[i + 2] = 0x50;
+                                    patchedBytes[i + 3] = 0x6C;
+                                }
+                            }
+                        }
+                    }
+                }
+                // EXTRACT END
+
+                File.WriteAllBytes(patchedPath, patchedBytes);
+
+                Thread.Sleep(500);
+
+                if (createShortcut)
+                {
+                    SetWorkingText("FINALIZING", "Creating shortcut on Desktop...");
+
+                    FileLibrary.CreateShortcut(shortcutName, desktopDirectory, studioInstancePath, patchedExecutableName, myPath);
+                }
+                else
+                {
+                    SetWorkingText("FINALIZING", "Opening patched executables path in explorer...");
+
+                    Process.Start("explorer.exe", "/select, \"" + patchedPath + "\"");
+                }
+
+                Thread.Sleep(500);
+
+                if (open)
+                {
+                    SetWorkingText("FINALIZING", "Opening your patched studio...");
+
+                    var startInfo = new ProcessStartInfo();
+                    startInfo.WorkingDirectory = studioInstancePath;
+                    startInfo.FileName = patchedPath;
+
+                    Process.Start(startInfo);
+
+                    Thread.Sleep(500);
+                }
+
+                SetWorkingText("DONE", "Completely finished all operations!");
+
+                Thread.Sleep(1000);
+
+                StopProgress();
+            }));
+        }
+
+        // ui element pickup event stuff idk
+        
+        // APPLICATION STARTUP
         public MainWindow() {
-            LibraryInstance.caller = this;
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Registering Keystrokes");
+
+            GeneralLibrary.RegisterKeystroke("openconsole", new Key[] { Key.LeftCtrl, Key.LeftShift, Key.C });
+            GeneralLibrary.RegisterKeystroke("clearconsole", new Key[] { Key.LeftCtrl, Key.LeftShift, Key.D });
+
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Registering UILibrary ownership");
+
+            UILibraryInstance.caller = this;
 
             InitializeComponent();
-            
+
             unavaliableBrush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/unavaliable-opacity-mask.png"));
         
             categoryData = new Array[] {
@@ -247,14 +466,74 @@ namespace Studio_Theme_Manager {
                 new object[] { themes_frame, themes_category_button },
             };
 
-            SwitchCategory(patcher_frame);
+            storedPopups = new Canvas[] {
+                working_progress_frame, 
+                save_frame
+            };
+
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Opening window to last opened one");
+
+            SwitchCategory((Canvas)FindName((string)FileLibrary.GetSetting("last-open-window")));
+            
+            app_version.Content = GeneralLibrary.GetVersion();
+
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Adding themes to theme list");
+
+            RefreshThemeList();
+
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Binding Keystrokes");
+            
+            KeyDown += new KeyEventHandler(delegate {
+                if (ConsoleLibrary.SettingsAllow()) {
+                    if (GeneralLibrary.KeystrokeDown("openconsole")) {
+                        ConsoleLibrary.StartConsole();
+                    } else if (GeneralLibrary.KeystrokeDown("clearconsole")) {
+                        ConsoleLibrary.ClearConsole();
+                    }
+                }
+            });
+            
+            ConsoleLibrary.WriteLine("[MAIN WINDOW] Window fully initialised");
         }
 
         // TOPBAR BUTTONS
-        private void closeButton_Click(object sender, RoutedEventArgs e) { Application.Current.Shutdown(); }
-        private void minimizeButton_Click(object sender, RoutedEventArgs e) { WindowState = WindowState.Minimized; }
+        private void close_button_Click(object sender, RoutedEventArgs e) {
+            Application.Current.Shutdown();
+        }
 
-        private void topbarContainer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) { DragMove(); }
+        private void minimize_button_Click(object sender, RoutedEventArgs e) {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void app_icon_Click(object sender, RoutedEventArgs e) {
+            if (ConsoleLibrary.SettingsAllow()) {
+                Task.Run(new Action(() =>
+                {
+                    var returned = UILibraryInstance.SpawnDropdown(app_icon, GeneralLibrary.ResourcesPath("Images/monochromed-icon.png"), new object[]  {
+                        new object[] {
+                            $"Open Console ({GeneralLibrary.KeystrokeToString("openconsole")})", "openconsole"
+                        },
+
+                         new object[] {
+                            $"Clear Console ({GeneralLibrary.KeystrokeToString("clearconsole")})", "clearconsole",
+                        }
+                    });
+
+                    if (returned.success) {
+                        switch ((string)returned.selected[1]) {
+                            case "openconsole":
+                                UILibraryInstance.RunOnUIThread(new Action(() => ConsoleLibrary.StartConsole()));
+                                break;
+                            case "clearconsole":
+                                UILibraryInstance.RunOnUIThread(new Action(() => ConsoleLibrary.ClearConsole()));
+                                break;
+                        };
+                    }
+                }));
+            }
+        }
+
+        private void topbar_container_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) { DragMove(); }
 
         // CATEGORY BUTTONS \\
         private void patcher_category_button_Click(object sender, RoutedEventArgs e) { SwitchCategory(patcher_frame); }
@@ -263,13 +542,14 @@ namespace Studio_Theme_Manager {
         private void settings_category_button_Click(object sender, RoutedEventArgs e) { SwitchCategory(settings_frame); }
 
         // CHECKBOX INITIALIZING AND CLICKING \\
-        private void CheckboxClick(object sender, RoutedEventArgs e) { LibraryInstance.SetCheckboxState((Button)sender, true); }
-        private void CheckboxInitialized(object sender, EventArgs e) { LibraryInstance.InitializeCheckbox(sender); }
+        private void CheckboxClick(object sender, RoutedEventArgs e) { UILibraryInstance.SetCheckboxState((Button)sender, true); }
+        private void CheckboxInitialized(object sender, EventArgs e) { UILibraryInstance.InitializeCheckbox(sender); }
 
         // DROPDOWN INITIALISING AND CLICK SETUP \\
-        private void light_override_dropdown_Loaded(object sender, RoutedEventArgs e) { LibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultLight").displayName, GetThemeData("DefaultLight").jsonPath }); }
-        private void dark_override_dropdown_Loaded(object sender, RoutedEventArgs e) { LibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultDark").displayName, GetThemeData("DefaultDark").jsonPath }); }
-        private void studio_instance_dropdown_Loaded(object sender, RoutedEventArgs e) { LibraryInstance.InitializeDropdown(sender, new object[] { "Automatic", automaticId }); }
+        private void light_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultLight").displayName, GetThemeData("DefaultLight").jsonPath }); }
+        private void dark_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultDark").displayName, GetThemeData("DefaultDark").jsonPath }); }
+        private void studio_instance_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { "Automatic", automaticId }); }
+        private void theme_type_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { "Dark", ThemeType.Dark }); }
 
         private void studio_instance_dropdown_Click(object sender, RoutedEventArgs e) {
             List<object[]> list = new List<object[]> {
@@ -290,119 +570,148 @@ namespace Studio_Theme_Manager {
                 }
             }
 
-            LibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ConvertBasicPathToResources("Images/studio.png"), list.ToArray());
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/studio.png"), list.ToArray());
         }
 
         private void dark_override_dropdown_Click(object sender, RoutedEventArgs e) {
-            LibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ConvertBasicPathToResources("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Dark));
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Dark));
         }
 
         private void light_override_dropdown_Click(object sender, RoutedEventArgs e) {
-            LibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ConvertBasicPathToResources("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Light));
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Light));
+        }
+
+        private void theme_type_dropdown_Click(object sender, RoutedEventArgs e) {
+            object[] list = new object[] {
+                new object[] { "Dark", ThemeType.Dark },
+                new object[] { "Light", ThemeType.Light }
+            };
+
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), list);
         }
 
         // MAIN BUTTONS
         private void run_patch_button_Click(object sender, RoutedEventArgs e) {
-            BeginWorking("INTIALIZING", "Finding theme JSONs and studio location...");
-            
-            string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            string shortcutPath = Path.Combine(desktopDirectory, shortcutName);
+            PatchStudio(
+                (string)UILibraryInstance.GetDropdownValue(studio_instance_dropdown),
+                (string)UILibraryInstance.GetDropdownValue(light_override_dropdown),
+                (string)UILibraryInstance.GetDropdownValue(dark_override_dropdown),
+                UILibraryInstance.GetCheckboxState(create_shortcut_checkbox),
+                UILibraryInstance.GetCheckboxState(auto_open_checkbox)
+            );
+        }
 
-            string[] versionsDirectory = Directory.GetDirectories(versionsFolderPath);
-            string targetDir = (string)LibraryInstance.GetDropdownValue(studio_instance_dropdown as Button);
+        private void refresh_themes_button_Click(object sender, RoutedEventArgs e) { 
+            RefreshThemeList();
+        }
 
-            if (targetDir == automaticId) {
-                targetDir = versionsDirectory.FirstOrDefault(dir => File.Exists(Path.Combine(dir, studioExecutableName)));
+        private void delete_theme_button_Click(object sender, RoutedEventArgs e) {
+            void DeletionDelegate(ListViewItemsData choice) {
+                if (choice != null) {
+                    string name = choice.ID;
+                    string compiledPath = Path.Combine(themesPath, name);
+
+                    if (Directory.Exists(compiledPath)) {
+                        ConsoleLibrary.WriteLine($"[MAIN WINDOW] Deleting theme \"{choice.LabelContent}\"");
+
+                        DeleteFavourite(compiledPath);
+
+                        FileLibrary.DeleteDirectory(compiledPath);
+                    }
+                }
             }
 
-            string platformPath = Path.Combine(targetDir, "Platform");
-            string fullPlatformPath = Path.Combine(targetDir, "Platform", "Base", "QtUI", "themes");
+            DeletionDelegate((ListViewItemsData)dark_themes_list_view.SelectedItem);
+            DeletionDelegate((ListViewItemsData)light_themes_list_view.SelectedItem);
 
-            string patchedPath = Path.Combine(targetDir, patchedExecutableName);
+            RefreshThemeList();
+        }
 
-            Task.Run(new Action(delegate {
-                Thread.Sleep(1000);
+        private void edit_theme_button_Click(object sender, RoutedEventArgs e) {
 
-                SetWorkingText("CLEARING", "Deleting old \"Platforms\" data and patched executable...");
+        } // INCOMPLETE
 
-                DeleteDirectory(platformPath);
+        private void import_theme_button_Click(object sender, RoutedEventArgs e) {
+            var dialog = new OpenFileDialog();
+            dialog.InitialDirectory = FileLibrary.KnownFolders.GetPath(FileLibrary.KnownFolder.Downloads);
+            dialog.Filter = "JSON File|*.json";
+            dialog.Title = "Select a theme JSON to import";
+            
+            if ((bool)dialog.ShowDialog()) {
+                importingFile = dialog.FileName;
 
-                if (File.Exists(patchedPath)) {
-                    File.Delete(patchedPath);
-                }
+                save_title.Content = "IMPORT";
+                theme_name_box.Text = dialog.SafeFileName.Remove(dialog.SafeFileName.Length - 5, 5);
 
-                Thread.Sleep(500);
+                StartProgress(save_frame);
 
-                SetWorkingText("ADDING DATA", "Creating \"Platforms\" directory inside studio...");
+            }
+        }
 
-                Directory.CreateDirectory(fullPlatformPath);
+        private void favourite_theme_button_Click(object sender, RoutedEventArgs e) {
+            void FavouriteDelegate(ListViewItemsData choice) {
+                if (choice != null) {
+                    string name = choice.ID;
+                    string compiledPath = Path.Combine(themesPath, name);
 
-                Thread.Sleep(500);
+                    if (Directory.Exists(compiledPath)) {
+                        bool deleted = DeleteFavourite(compiledPath);
 
-                SetWorkingText("ADDING DATA", "Copying JSONs into the \"Platforms\" directory...");
-                
-                void CopyJSONOver(string jsonPath, string overwriteName) {
-                    File.WriteAllText(Path.Combine(fullPlatformPath, overwriteName + ".json"), File.ReadAllText(jsonPath));
-                }
-
-                CopyJSONOver((string)LibraryInstance.GetDropdownValue((Button)dark_override_dropdown), "DarkTheme");
-                CopyJSONOver((string)LibraryInstance.GetDropdownValue((Button)light_override_dropdown), "LightTheme");
-
-                Thread.Sleep(500);
-
-                SetWorkingText("PATCHING", "Running patch on studio...");
-
-                byte[] patchedBytes = File.ReadAllBytes(Path.Combine(targetDir, studioExecutableName));
-
-                for (int i = 0; i <= patchedBytes.Length - 1; i++) {
-                    if (patchedBytes[i] == 0x3A) {
-                        if (patchedBytes[i + 1] == 0x2F) {
-                            if (patchedBytes[i + 2] == 0x50) {
-                                if (patchedBytes[i + 3] == 0x6C) {
-                                    patchedBytes[i] = 0x2E;
-                                    patchedBytes[i + 1] = 0x2F;
-                                    patchedBytes[i + 2] = 0x50;
-                                    patchedBytes[i + 3] = 0x6C;
-                                }
-                            }
+                        if (!deleted) {
+                            AddFavourite(compiledPath);
                         }
                     }
                 }
+            }
 
-                File.WriteAllBytes(patchedPath, patchedBytes);
+            FavouriteDelegate((ListViewItemsData)dark_themes_list_view.SelectedItem);
+            FavouriteDelegate((ListViewItemsData)light_themes_list_view.SelectedItem);
 
-                Thread.Sleep(500);
+            RefreshThemeList();
+        }
 
-                if (LibraryInstance.GetCheckboxState(create_shortcut_checkbox as Button) == true) {
-                    SetWorkingText("FINALIZING", "Creating shortcut on Desktop...");
+        private void upload_theme_button_Click(object sender, RoutedEventArgs e) { 
+            MessageBox.Show("this dont work yet 🤑🤑 come back next version (if there is)\n(idk how to set up a database)", "this isnt ready!!!");
+        } // INCOMPLETE
 
-                    CreateShortcut(shortcutName, desktopDirectory, targetDir, patchedExecutableName, myPath);
-                } else {
-                    SetWorkingText("FINALIZING", "Opening patched executables path in explorer...");
+        private void save_theme_button_Click(object sender, RoutedEventArgs e) {
+            if (string.IsNullOrEmpty(importingFile)) { return; }
 
-                    Process.Start("explorer.exe", "/select, \"" + patchedPath + "\"");
-                }
+            bool favourite = UILibraryInstance.GetCheckboxState(favourite_theme_checkbox);
+            string name = theme_name_box.Text;
+            ThemeType type = (ThemeType)UILibraryInstance.GetDropdownValue(theme_type_dropdown);
 
-                Thread.Sleep(500);
+            string directoryName = $"{Directory.GetDirectories(themesPath).Length + 1}_{name}";
+            string fullPath = Path.Combine(themesPath, directoryName);
 
-                if (LibraryInstance.GetCheckboxState(create_shortcut_checkbox as Button) == true) {
-                    SetWorkingText("FINALIZING", "Opening your patched studio...");
+            Directory.CreateDirectory(fullPath);
 
-                    var startInfo = new ProcessStartInfo();
-                    startInfo.WorkingDirectory = targetDir;
-                    startInfo.FileName = patchedPath;
+            JObject jsonified = FileLibrary.JSONify(File.ReadAllText(importingFile));
 
-                    Process.Start(startInfo);
+            if (jsonified.ContainsKey("Name")) {
+                jsonified["Name"] = type.ToString();
 
-                    Thread.Sleep(500);
-                }
+                JObject infoJSON = FileLibrary.JSONify(@"{
+	                ""name"": ""Name"", // Name of the theme
+	                ""creator-name"": ""Unknown"", // Name of the creator
 
-                SetWorkingText("DONE", "Completely finished all operations!");
+	                ""theme-type"": """", // 1 = Light, 2 = Dark, Any others = Dark
 
-                Thread.Sleep(1000);
+	                ""source"": ""Locally Stored"" // Source of the file
+                }");
 
-                StopWorking();
-            }));
+                infoJSON["name"] = name;
+                infoJSON["theme-type"] = ((int)type).ToString();
+
+                FileLibrary.WriteJSONToPath(Path.Combine(fullPath, "Theme.json"), jsonified);
+                FileLibrary.WriteJSONToPath(Path.Combine(fullPath, "ThemeInfo.json"), infoJSON);
+
+                if (favourite) { AddFavourite(fullPath); }
+            } else {
+                GeneralLibrary.ShowError("Your theme JSON is invalid", GeneralLibrary.ErrorLevel.MINOR, true);
+            }
+
+            StopProgress();
         }
     }
 }

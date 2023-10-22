@@ -1,0 +1,12 @@
+{
+	"version-number": "1",
+	"version-stage": "preview",
+
+	"console-print": "true", // Determines if console is shown
+
+	"last-open-window": "patcher_frame", // DO NOT CHANGE THIS!!! UI WILL NOT LAUNCH!!!
+
+	"favourited": [
+
+	]
+}

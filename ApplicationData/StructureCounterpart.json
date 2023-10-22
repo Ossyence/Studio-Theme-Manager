@@ -1,8 +1,0 @@
-﻿{
-    "name": "OnlyTwentyCharacters", // Name of the theme
-    "creator-name": "OnlyTwentyCharacters", // Name of the creator
-
-    "theme-type": 1, // 1 = Light, 2 = Dark, Any others = Dark
-
-    "source": "offline" // Source of the file
-}

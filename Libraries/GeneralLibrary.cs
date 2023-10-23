@@ -26,7 +26,7 @@ namespace Studio_Theme_Manager.Libraries
         }
 
         public static string GetVersion() {
-            return "v" + FileLibrary.GetSetting("version-number").ToString() + "-" + FileLibrary.GetSetting("version-stage").ToString();
+            return FileLibrary.GetSetting("version-number").ToString() + "-" + FileLibrary.GetSetting("version-stage").ToString();
         }
 
         public static string ResourcesPath(string basicPath) {

@@ -32,7 +32,7 @@ namespace Studio_Theme_Manager.Libraries {
 
         // OTHERS \\
         public void RunOnUIThread(Delegate method) {
-            ConsoleLibrary.WriteLine($"[UILIBRARY] [THREAD SWITCH] Running a method on the UI Thread");
+            //ConsoleLibrary.WriteLine($"[UILIBRARY] [THREAD SWITCH] Running a method on the UI Thread");
 
             caller.Dispatcher.BeginInvoke(method);
         }
@@ -182,7 +182,7 @@ namespace Studio_Theme_Manager.Libraries {
         public (bool success, object[] selected) SpawnDropdown(UIElement parent, string icon, object[] items) {
             bool canContinue = false;
             bool success = false;
-            object[] selected = items[1] as object[];
+            object[] selected = null;
 
             RunOnUIThread(new Action(delegate {
                 ContextMenu menu = new ContextMenu();

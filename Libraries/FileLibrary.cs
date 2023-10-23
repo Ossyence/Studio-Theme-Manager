@@ -40,7 +40,7 @@ namespace Studio_Theme_Manager.Libraries {
                 int hToken = 0);
         }
 
-        public static string settingsPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, "Data"), "Data.json");
+        public static string settingsPath = Path.Combine(Environment.CurrentDirectory, "Data.json");
 
         public static JObject JSONify(string text) {
             return JObject.Parse(text);

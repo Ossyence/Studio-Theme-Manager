@@ -10,6 +10,7 @@ using Studio_Theme_Manager.Libraries;
 using System.Xml.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace Studio_Theme_Manager.Libraries {
     public static class ConsoleLibrary {
@@ -56,6 +57,8 @@ namespace Studio_Theme_Manager.Libraries {
             if (IsConsoleOpen()) {
                 console.Dispatcher.BeginInvoke(new Action(() => console.BypassWriteLine(content)));
             }
+
+            Debug.WriteLine(content);
         }
 
         public static void WriteLine(string content, bool override_ = false, bool system = true) {
@@ -68,6 +71,8 @@ namespace Studio_Theme_Manager.Libraries {
             if (IsConsoleOpen()) {
                 console.Dispatcher.BeginInvoke(new Action(() => console.WriteLine(content)));
             }
+
+            Debug.WriteLine(content);
         }
 
         public static void Write(string content, bool override_ = false) {
@@ -76,6 +81,8 @@ namespace Studio_Theme_Manager.Libraries {
             if (IsConsoleOpen()) {
                 console.Dispatcher.BeginInvoke(new Action(() => console.Write(content)));
             }
+
+            Debug.WriteLine(content);
         }
 
         public class Commands {
@@ -166,13 +173,13 @@ namespace Studio_Theme_Manager.Libraries {
                 } },
 
                 {"themecount", delegate (List<string> arguements) {
-                    DirectoryInfo themes = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "InstalledThemes"));
+                    DirectoryInfo themes = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "Themes"));
 
                     return (errored : false, newLine : true, message : "total themes installed: " + themes.GetDirectories().Length.ToString());
                 } },
 
                 {"themelist", delegate (List<string> arguements) {
-                    DirectoryInfo themes = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "InstalledThemes"));
+                    DirectoryInfo themes = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "Themes"));
 
                     string names = "heres a list of all themes installed:\n";
 
@@ -185,15 +192,15 @@ namespace Studio_Theme_Manager.Libraries {
 
                 {"themeinfo", delegate (List<string> arguements) {
                     if (arguements.Count > 0) {
-                        string combinedPath = Path.Combine(Environment.CurrentDirectory, "InstalledThemes", arguements[0]);
+                        string combinedPath = Path.Combine(Environment.CurrentDirectory, "Themes", arguements[0]);
 
                         if (Directory.Exists(combinedPath)) {
-                            string filePath = Path.Combine(combinedPath, "ThemeInfo.json");
+                            string filePath = Path.Combine(combinedPath, "Info.json");
 
                             if (File.Exists(filePath)) {
                                 return (errored : false, newLine : true, message : $"Theme info \"{arguements[0]}\"'s JSON is:\n{File.ReadAllText(filePath)}");
                             } else {
-                                return (errored : true, newLine : true, message : $"theme \"{arguements[0]}/ThemeInfo.json\" does not exist");
+                                return (errored : true, newLine : true, message : $"theme \"{arguements[0]}/Info.json\" does not exist");
                             }
                         } else {
                             return (errored : true, newLine : true, message : $"theme \"{arguements[0]}\" does not exist as a folder");
@@ -205,7 +212,7 @@ namespace Studio_Theme_Manager.Libraries {
 
                 {"themedata", delegate (List<string> arguements) {
                     if (arguements.Count > 0) {
-                        string combinedPath = Path.Combine(Environment.CurrentDirectory, "InstalledThemes", arguements[0]);
+                        string combinedPath = Path.Combine(Environment.CurrentDirectory, "Themes", arguements[0]);
 
                         if (Directory.Exists(combinedPath)) {
                             string filePath = Path.Combine(combinedPath, "Theme.json");

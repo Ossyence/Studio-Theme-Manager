@@ -1,6 +1,6 @@
 {
-	"version-number": "1",
-	"version-stage": "preview",
+	"version-number": "b0",
+	"version-stage": "developer",
 
 	"console-print": "true", // Determines if console is shown
 

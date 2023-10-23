@@ -1,27 +1,24 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+using Studio_Theme_Manager.Libraries;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Threading;
-using System.Diagnostics;
 using System.Windows.Media.Animation;
-using System.Collections.ObjectModel;
-using Microsoft.Win32;
+using System.Windows.Media.Imaging;
 
-using Newtonsoft.Json.Linq;
-using Studio_Theme_Manager.Libraries;
-using System.Xml.Linq;
-
-namespace Studio_Theme_Manager { 
-    // TODO: MAKE THEME DROPDOWNS IN PATCHER CATEGORY NOT REQUIRE THE ROBLOX DEFAULT THEMES TO EXIST AND INSTEAD RELY ON WHAT THE USER INSTALLED
-    // TODO: MAKE PATCHING SYSTEM RECOGNISE THAT THERE CAN BE NO THEME IN THAT OVERRIDE SLOT SO IT DOWNLOADS THE DEFAULT VERSION
-
+namespace Studio_Theme_Manager
+{
     /// </summary>
     /// This program is kinda poorly made dont expect amazing programming and good optimisation                                                  
     /// I also stopped developing this for a whole week and completely forgot how to work on the code 🤑🤑🤑
@@ -32,7 +29,7 @@ namespace Studio_Theme_Manager {
 
         public string ID { get; set; }
     }
-
+    
     public partial class MainWindow : Window {
         private ObservableCollection<ListViewItemsData> DarkListViewItemsCollections { get { return _DarkListViewItemsCollections; } }
         private ObservableCollection<ListViewItemsData> LightListViewItemsCollections { get { return _LightListViewItemsCollections; } }
@@ -52,14 +49,14 @@ namespace Studio_Theme_Manager {
 
         private ImageBrush unavaliableBrush = new ImageBrush();
 
-        public string automaticId = "gaminggamerstonisautomaticthisisuneccessarilylonghehe:money_mouth::slots:";
+        public string notSetText = "Default";
+
+        public string automaticId = "thisisautomaticthisisuneccessarilylonghehe:money_mouth::slots:";
+        public string notSetId = "hehethisisalsouneccesarilylongteehee🚒";
 
         public string myPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
-        public string componentsPath = Path.Combine(Environment.CurrentDirectory, "Data");
         public string themesPath = Path.Combine(Environment.CurrentDirectory, "Themes");
-
-        public JObject themeStructure = JObject.Parse(File.ReadAllText(Path.Combine(Path.Combine(Environment.CurrentDirectory, "Data"), "Structure.json")));
 
         public string versionsFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox", "Versions");
 
@@ -87,7 +84,7 @@ namespace Studio_Theme_Manager {
                 
                 if (info.Name == name) {
                     string jsonPath = Path.Combine(directoryPath, "Theme.json");
-                    string infoPath = Path.Combine(directoryPath, "ThemeInfo.json");
+                    string infoPath = Path.Combine(directoryPath, "Info.json");
 
                     JObject jsonParsed = JObject.Parse(File.ReadAllText(jsonPath));
                     JObject infoParsed = JObject.Parse(File.ReadAllText(infoPath));
@@ -97,7 +94,7 @@ namespace Studio_Theme_Manager {
                     ThemeType themeType = (ThemeType)(int)infoParsed["theme-type"];
 
                     foreach (JToken favourite in FileLibrary.GetSetting("favourited")) {
-                        if (favourite.ToString() == directoryPath) {
+                        if (favourite.ToString() == name) {
                             isFavourite = true;
                             break;
                         }
@@ -139,6 +136,8 @@ namespace Studio_Theme_Manager {
         }
 
         public object[] GetEveryThemeJSONData(bool sort = true, ThemeType keep = ThemeType.UNKNOWN) {
+            if (Directory.GetDirectories(themesPath).Length <= 0) { return new object[0]; }
+            
             string[] directories = Directory.GetDirectories(themesPath);
             List<object[]> themes = new List<object[]>();
 
@@ -285,12 +284,12 @@ namespace Studio_Theme_Manager {
         }
 
         // Favouriting functions
-        public bool DeleteFavourite(string path) {
+        public bool DeleteFavourite(string name) {
             JArray favourites = (JArray)FileLibrary.GetSetting("favourited");
 
             foreach (JToken favourite in favourites) {
-                if (favourite.ToString() == path) {
-                    ConsoleLibrary.WriteLine($"[MAIN WINDOW] Removing theme \"{path}\" from favourites list");
+                if (favourite.ToString() == name) {
+                    ConsoleLibrary.WriteLine($"[MAIN WINDOW] Removing theme \"{name}\" from favourites list");
 
                     favourites.Remove(favourite);
 
@@ -303,12 +302,12 @@ namespace Studio_Theme_Manager {
             return false;
         }
 
-        public void AddFavourite(string path) {
-            DeleteFavourite(path);
+        public void AddFavourite(string name) {
+            DeleteFavourite(name);
             
             JArray favourites = (JArray)FileLibrary.GetSetting("favourited");
             
-            favourites.Add(path);
+            favourites.Add(name);
 
             FileLibrary.SetSetting("favourited", favourites);
         }
@@ -361,15 +360,29 @@ namespace Studio_Theme_Manager {
 
                 Thread.Sleep(500);
 
-                SetWorkingText("ADDING DATA", "Copying JSONs into the \"Platforms\" directory...");
-
-                void CopyJSONOver(string jsonPath, string overwriteName)
+                void CopyJSONOver(string jsonPath, ThemeType type)
                 {
-                    File.WriteAllText(Path.Combine(fullPlatformPath, overwriteName + ".json"), File.ReadAllText(jsonPath));
+                    string content = "";
+                    string name = type + "Theme.json";
+
+                    if (jsonPath == notSetId) {
+                        using (WebClient client = new WebClient())
+                        {
+                            SetWorkingText("ADDING DATA", $"Getting default JSON for theme type \"{type}\" from a repository...");
+
+                            content = client.DownloadString(new Uri($"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/QtResources/Platform/Base/QtUI/themes/{name}"));
+                        }
+                    } else {
+                        content = File.ReadAllText(jsonPath);
+                    }
+
+                    SetWorkingText("ADDING DATA", $"Copying JSON \"{name}\" to the \"Platforms\" directory...");
+
+                    File.WriteAllText(Path.Combine(fullPlatformPath, type + "Theme.json"), content);
                 }
 
-                CopyJSONOver(darkOverridePath, "DarkTheme");
-                CopyJSONOver(lightOverridePath, "LightTheme");
+                CopyJSONOver(darkOverridePath, ThemeType.Dark);
+                CopyJSONOver(lightOverridePath, ThemeType.Light);
 
                 Thread.Sleep(500);
 
@@ -414,7 +427,7 @@ namespace Studio_Theme_Manager {
                 }
                 else
                 {
-                    SetWorkingText("FINALIZING", "Opening patched executables path in explorer...");
+                    SetWorkingText("FINALIZING", "Opening patched executables name in explorer...");
 
                     Process.Start("explorer.exe", "/select, \"" + patchedPath + "\"");
                 }
@@ -446,7 +459,11 @@ namespace Studio_Theme_Manager {
         
         // APPLICATION STARTUP
         public MainWindow() {
-            ConsoleLibrary.WriteLine("[MAIN WINDOW] Registering Keystrokes");
+            ConsoleLibrary.WriteLine("[PROGRAM] Creating directories");
+
+            if (!Directory.Exists(themesPath)) { Directory.CreateDirectory(themesPath); }
+
+            ConsoleLibrary.WriteLine("[PROGRAM] Registering Keystrokes");
 
             GeneralLibrary.RegisterKeystroke("openconsole", new Key[] { Key.LeftCtrl, Key.LeftShift, Key.C });
             GeneralLibrary.RegisterKeystroke("clearconsole", new Key[] { Key.LeftCtrl, Key.LeftShift, Key.D });
@@ -546,8 +563,8 @@ namespace Studio_Theme_Manager {
         private void CheckboxInitialized(object sender, EventArgs e) { UILibraryInstance.InitializeCheckbox(sender); }
 
         // DROPDOWN INITIALISING AND CLICK SETUP \\
-        private void light_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultLight").displayName, GetThemeData("DefaultLight").jsonPath }); }
-        private void dark_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { GetThemeData("DefaultDark").displayName, GetThemeData("DefaultDark").jsonPath }); }
+        private void light_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { notSetText, notSetId }); }
+        private void dark_override_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { notSetText, notSetId }); }
         private void studio_instance_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { "Automatic", automaticId }); }
         private void theme_type_dropdown_Loaded(object sender, RoutedEventArgs e) { UILibraryInstance.InitializeDropdown(sender, new object[] { "Dark", ThemeType.Dark }); }
 
@@ -573,12 +590,26 @@ namespace Studio_Theme_Manager {
             UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/studio.png"), list.ToArray());
         }
 
+        private object[] ThemeDropdownGrabber(ThemeType type) {
+            object[] before = GetEveryThemeJSONData(true, type);
+
+            List<object[]> formatting = new List<object[]> {
+                new object[] { notSetText, notSetId }
+            };
+
+            foreach (object[] array in before) {
+                formatting.Add(array);
+            }
+
+            return formatting.ToArray();
+        }
+
         private void dark_override_dropdown_Click(object sender, RoutedEventArgs e) {
-            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Dark));
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), ThemeDropdownGrabber(ThemeType.Dark));
         }
 
         private void light_override_dropdown_Click(object sender, RoutedEventArgs e) {
-            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), GetEveryThemeJSONData(true, ThemeType.Light));
+            UILibraryInstance.CreateDropdown(sender as Button, GeneralLibrary.ResourcesPath("Images/colorpick.png"), ThemeDropdownGrabber(ThemeType.Light));
         }
 
         private void theme_type_dropdown_Click(object sender, RoutedEventArgs e) {
@@ -614,7 +645,7 @@ namespace Studio_Theme_Manager {
                     if (Directory.Exists(compiledPath)) {
                         ConsoleLibrary.WriteLine($"[MAIN WINDOW] Deleting theme \"{choice.LabelContent}\"");
 
-                        DeleteFavourite(compiledPath);
+                        DeleteFavourite(name);
 
                         FileLibrary.DeleteDirectory(compiledPath);
                     }
@@ -655,10 +686,10 @@ namespace Studio_Theme_Manager {
                     string compiledPath = Path.Combine(themesPath, name);
 
                     if (Directory.Exists(compiledPath)) {
-                        bool deleted = DeleteFavourite(compiledPath);
+                        bool deleted = DeleteFavourite(name);
 
                         if (!deleted) {
-                            AddFavourite(compiledPath);
+                            AddFavourite(name);
                         }
                     }
                 }
@@ -704,12 +735,14 @@ namespace Studio_Theme_Manager {
                 infoJSON["theme-type"] = ((int)type).ToString();
 
                 FileLibrary.WriteJSONToPath(Path.Combine(fullPath, "Theme.json"), jsonified);
-                FileLibrary.WriteJSONToPath(Path.Combine(fullPath, "ThemeInfo.json"), infoJSON);
+                FileLibrary.WriteJSONToPath(Path.Combine(fullPath, "Info.json"), infoJSON);
 
-                if (favourite) { AddFavourite(fullPath); }
+                if (favourite) { AddFavourite(directoryName); }
             } else {
                 GeneralLibrary.ShowError("Your theme JSON is invalid", GeneralLibrary.ErrorLevel.MINOR, true);
             }
+
+            RefreshThemeList();
 
             StopProgress();
         }
